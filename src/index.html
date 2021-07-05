@@ -137,10 +137,7 @@
                     </ul>
 
                     <form class="ms-auto">
-                        <div
-                            class="dropdown"
-                            style="display: inline-block; margin-right: 0.5rem;"
-                        >
+                        <div class="dropdown" style="display: inline-block;">
                             <a
                                 class="btn btn-outline-secondary dropdown-toggle nav-btn-outline"
                                 href="#"
@@ -229,7 +226,116 @@
             </div>
         </div>
 
-        <!-- The Reset Modal -->
+        <!-- The Delete Table Modal -->
+        <div
+            class="modal fade"
+            id="deleteModal"
+            tabindex="-1"
+            aria-labelledby="deleteModalLabel"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">
+                            Delete Table
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p>
+                            Are you sure you want to delete this table? This
+                            cannot be undone.
+                        </p>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            id="confirm-delete"
+                            type="button"
+                            class="btn btn-danger"
+                            data-bs-dismiss="modal"
+                        >
+                            Yes, I'm sure
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- The Rename Table Modal -->
+        <div
+            class="modal fade"
+            id="renameModal"
+            tabindex="-1"
+            aria-labelledby="renameModalLabel"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">
+                            Rename Table
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label for="table-name" class="col-form-label"
+                                    >Table Name:</label
+                                >
+                                <input
+                                    id="new-table-name"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="Ex: Table Default"
+                                />
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            id="confirm-rename"
+                            type="button"
+                            class="btn btn-success"
+                            data-bs-dismiss="modal"
+                        >
+                            Rename
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- The Reset Table Modal -->
         <div
             class="modal fade"
             id="resetModal"
@@ -495,115 +601,92 @@
 
         <hr />
 
-        <div class="container-fluid">
-            <!-- multiple table option -->
-            <div class="row text-center">
-                <div class="col-xs-12">
-                    <!-- add timetables button -->
-                    <div class="btn-group" role="group">
-                        <div class="btn-group saved-tt-picker-btn-group">
-                            <!-- Current table -->
-                            <button
-                                id="saved-tt-picker-label"
-                                type="button"
-                                class="btn btn-primary dropdown-toggle"
-                                data-bs-toggle="dropdown"
-                                aria-haspopup="true"
-                                aria-expanded="false"
-                            >
-                                <span class="btn-text">Table Default</span>
-                            </button>
-                            <!-- Tables list -->
-                            <ul
-                                id="saved-tt-picker"
-                                class="dropdown-menu"
-                                style="width: max-content;"
-                            >
-                                <li>
-                                    <input
-                                        class="tt-picker-edit-input"
-                                        style="display: none;"
-                                        type="text"
-                                    />
-                                    <button
-                                        title="Ok"
-                                        type="button"
-                                        class="btn-close tt-picker-edit-ok"
-                                        style="display: none;"
-                                        aria-label="Ok"
-                                    >
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                    <a
-                                        href="JavaScript:void(0);"
-                                        data-table-id="0"
-                                    >
-                                        <span class="tt-table-name"
-                                            >Table Default</span
-                                        >
-                                        <button
-                                            title="Rename"
-                                            type="button"
-                                            class="btn-close tt-picker-edit-button"
-                                            aria-label="Rename"
-                                        >
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
+        <!-- Option buttons -->
+        <div
+            id="option-buttons"
+            class="container-fluid col-xs-10"
+            style="width: 90%;"
+        >
+            <div class="row justify-content-evenly align-items-center">
+                <div class="col-sm-4">
+                    <div class="btn-group">
                         <button
-                            id="saved-tt-picker-add"
+                            id="saved-tt-picker-label"
                             type="button"
-                            class="btn btn-primary"
+                            class="btn btn-primary dropdown-toggle"
+                            data-selected-id="0"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
                         >
-                            <i class="fas fa-plus"></i>
+                            Table Default
                         </button>
+                        <ul id="saved-tt-picker" class="dropdown-menu">
+                            <li>
+                                <a
+                                    class="dropdown-item"
+                                    data-table-id="0"
+                                    href="JavaScript:void(0);"
+                                    >Table Default</a
+                                >
+                            </li>
+                        </ul>
                     </div>
 
-                    <div
-                        id="option_buttons"
-                        class="horizontal-scroll-no-collapse text-center"
-                        style="padding: 0.7rem;"
+                    <button
+                        id="saved-tt-picker-add"
+                        class="btn btn-success"
+                        type="button"
                     >
-                        <!-- Screenshot button -->
-                        <button
-                            type="button"
-                            id="takeScreenshotBtn"
-                            class="btn btn-success"
-                        >
-                            Timetable Screenshot
-                        </button>
-                        <!-- Quick visualization button -->
-                        <button
-                            type="button"
-                            id="toggleClickToSelect"
-                            data-toggle="button"
-                            class="btn btn-warning"
-                            data-state="disabled"
-                            style="margin: 0 0.5rem 0 0.5rem;"
-                        >
-                            Enable Quick Visualization
-                        </button>
-                        <!-- Reset button -->
-                        <button
-                            type="button"
-                            data-bs-toggle="modal"
-                            data-bs-target="#resetModal"
-                            class="btn btn-danger"
-                        >
-                            Reset
-                        </button>
-                        <!-- Tour button -->
-                        <!--<button type="button" id="tourButton" class="btn btn-info">Take A Tour</button>-->
-                    </div>
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button
+                        id="saved-tt-picker-rename"
+                        class="btn saved-tt-picker-edit-button btn-warning"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#renameModal"
+                        data-table-name="Table Default"
+                    >
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button
+                        id="saved-tt-picker-delete"
+                        class="btn btn-danger"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#deleteModal"
+                        disabled
+                    >
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+
+                <div class="col-sm-6">
+                    <button
+                        id="takeScreenshotBtn"
+                        class="btn btn-success"
+                        type="button"
+                    >
+                        Save Screenshot
+                    </button>
+                    <button
+                        id="toggleClickToSelect"
+                        class="btn btn-warning"
+                        type="button"
+                    >
+                        Enable Quick Visualization
+                    </button>
+                    <button
+                        class="btn btn-danger"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#resetModal"
+                    >
+                        Reset Table
+                    </button>
                 </div>
             </div>
         </div>
-        <!-- End of Fluid container -->
-
-        <!-- <hr> -->
 
         <div class="container">
             <!-- Quick selection tiles - morning slots -->

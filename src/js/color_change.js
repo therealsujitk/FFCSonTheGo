@@ -54,7 +54,7 @@ $(function() {
                 activeTable = timeTableStorage[0];
 
                 fillPage(activeTable.data);
-                updateTableDropdownLabel(activeTable.name);
+                updateTableDropdownLabel(activeTable.name, activeTable.id);
 
                 // Renaming the 'Table Default' option
                 $('#saved-tt-picker .tt-table-name')
@@ -331,80 +331,6 @@ $(function() {
         switchTable(selectedTableId);
     });
 
-    // Remove table
-    $('#saved-tt-picker').on('click', '.tt-picker-remove', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var tableId = Number(
-            $(this)
-                .closest('a')
-                .data('table-id'),
-        );
-        console.log(tableId);
-        $(this)
-            .closest('li')
-            .remove();
-        removeTable(tableId);
-
-        if (timeTableStorage.length == 1) {
-            $('#saved-tt-picker .tt-picker-remove')
-                .first()
-                .remove();
-            isDefaultDeletable = false;
-        }
-    });
-
-    // Rename table button
-    $('#saved-tt-picker').on('click', '.tt-picker-edit-button', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var tableName = $(this)
-            .closest('a')
-            .children('.tt-table-name')
-            .text()
-            .trim();
-        $(this)
-            .closest('a')
-            .siblings('input')
-            .val(tableName);
-        $(this)
-            .closest('a')
-            .siblings('input')
-            .show()
-            .focus();
-        $(this)
-            .closest('a')
-            .siblings('.tt-picker-edit-ok')
-            .show();
-        $(this)
-            .closest('a')
-            .hide();
-    });
-
-    // Rename input focus out
-    $('#saved-tt-picker').on('focusout', '.tt-picker-edit-input', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var tableId = Number(
-            $(this)
-                .siblings('a')
-                .data('table-id'),
-        );
-        var tableName = $(this).val();
-        $(this)
-            .siblings('a')
-            .children('.tt-table-name')
-            .text(tableName);
-        $(this)
-            .siblings('a')
-            .show();
-        $(this).hide();
-        $(this)
-            .siblings('.tt-picker-edit-ok')
-            .hide();
-        renameTable(tableId, tableName);
-    });
-
     $('#saved-tt-picker').on('keydown', '.tt-picker-edit-input', function(e) {
         // enter or Esc key
         if (e.which === 13 || e.which === 27) {
@@ -425,6 +351,25 @@ $(function() {
         switchTable(newTableId);
         updateLocalForage();
         highlighted[newTableId] = [];
+    });
+
+    // Add current table name to modal
+    $('#saved-tt-picker-rename').click(function() {
+        var tableName = $('#saved-tt-picker-rename').data('table-name');
+        $('#new-table-name').val(tableName);
+    });
+
+    // Rename table button
+    $('#confirm-rename').click(function() {
+        var tableId = $('#saved-tt-picker-label').data('selected-id');
+        var tableName = $('#new-table-name').val();
+        renameTable(tableId, tableName);
+    });
+
+    // Delete table button
+    $('#confirm-delete').click(function() {
+        var tableId = $('#saved-tt-picker-label').data('selected-id');
+        removeTable(tableId);
     });
 
     // load course data with autocomplete
@@ -815,7 +760,8 @@ function switchTable(tableId) {
     for (var i = 0; i < timeTableStorage.length; i++) {
         if (tableId == timeTableStorage[i].id) {
             activeTable = timeTableStorage[i];
-            updateTableDropdownLabel(activeTable.name);
+            updateTableDropdownLabel(activeTable.name, tableId);
+            $('#saved-tt-picker-rename').data('table-name', activeTable.name);
             fillPage(activeTable.data);
             // return;
             break;
@@ -824,13 +770,20 @@ function switchTable(tableId) {
     highlighted.highlight(tableId);
 }
 
-function updateTableDropdownLabel(tableName) {
-    $('#saved-tt-picker-label .btn-text').text(tableName);
+function updateTableDropdownLabel(tableName, tableId) {
+    $('#saved-tt-picker-label').text(tableName);
+    $('#saved-tt-picker-label').data('selected-id', tableId);
 }
 
 function removeTable(tableId) {
     for (var i = 0; i < timeTableStorage.length; ++i) {
         if (timeTableStorage[i].id == tableId) {
+            // Checking if the delete button should be disabled
+            if (timeTableStorage.length == 2) {
+                $('#saved-tt-picker-delete').prop('disabled', true);
+                isDefaultDeletable = false;
+            }
+
             // If it is the active table, change activeTable.
             if (activeTable.id == tableId) {
                 if (i == 0) {
@@ -841,6 +794,11 @@ function removeTable(tableId) {
             }
             timeTableStorage.splice(i, 1);
             updateLocalForage();
+
+            // Removing the table from the dropdown
+            $('li')
+                .find("[data-table-id='" + tableId + "']")
+                .remove();
             return;
         }
     }
@@ -851,10 +809,17 @@ function renameTable(tableId, tableName) {
         if (timeTableStorage[i].id == tableId) {
             timeTableStorage[i].name = tableName;
             updateLocalForage();
+
             // If active table is renamed
             if (activeTable.id == tableId) {
-                updateTableDropdownLabel(tableName);
+                updateTableDropdownLabel(tableName, tableId);
             }
+
+            // Rename the item in the dropdown
+            $('li')
+                .find("[data-table-id='" + tableId + "']")
+                .text(tableName);
+
             return;
         }
     }
@@ -862,29 +827,15 @@ function renameTable(tableId, tableName) {
 
 function addTableDropdownButton(tableId, tableName) {
     $('#saved-tt-picker').append(
-        '<li>' +
-            '<input class="tt-picker-edit-input" style="display: none;" type="text">' +
-            '<button title="Ok" type="button" class="close tt-picker-edit-ok" style="display: none;" aria-label="Ok"><span aria-hidden="true">&#10004;</span></button>' +
-            '<a href="JavaScript:void(0);" data-table-id="' +
+        '<li><a class="dropdown-item" href="JavaScript:void(0);" data-table-id="' +
             tableId +
             '">' +
-            '<span class="tt-table-name">' +
             tableName +
-            '</span>' +
-            '<button title="Rename" type="button" class="btn-close tt-picker-edit-button" aria-label="Rename"><i class="fas fa-edit"></i></button>' +
-            '<button title="Remove" type="button" class="btn-close tt-picker-remove" aria-label="Remove"><i class="fas fa-times"></i></button>' +
-            '</a>' +
-            '</button>' +
-            '</li>',
+            '</a></button></li>',
     );
 
     if (!isDefaultDeletable) {
-        $('#saved-tt-picker .tt-picker-edit-button')
-            .first()
-            .after(
-                '<button title="Remove" type="button" class="btn-close tt-picker-remove" aria-label="Remove"><i class="fas fa-times"></i></button>',
-            );
-
+        $('#saved-tt-picker-delete').prop('disabled', false);
         isDefaultDeletable = true;
     }
 }

@@ -48,6 +48,10 @@ nav {
     background-color: #812092 !important;
 }
 
+.btn {
+    margin: 0.15rem;
+}
+
 /**
  * Theme toggle switch
  */
@@ -92,6 +96,10 @@ nav {
 
 .fa-sun {
     color: #ffffff;
+}
+
+#option-buttons {
+    text-align: center;
 }
 
 .container-fluid .row {
